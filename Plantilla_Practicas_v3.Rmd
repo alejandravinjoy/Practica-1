@@ -1,0 +1,326 @@
+---
+title: "Practica 1"
+author: "Alejandra Vinjoy Lliso"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    echo: true
+    number_sections: true
+    theme: lumen
+    toc: true
+  bookdown::pdf_document2:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    figure_caption: "Figura" # Referencias en castellano
+    table_caption: "Tabla"
+  html_notebook:
+    echo: true
+    number_sections: true
+    toc: true
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+  bookdown::html_document2:
+    echo: true
+    number_sections: true
+    theme: spacelab
+    toc: true
+    figure_caption: "Figura"
+    table_caption: "Tabla"
+always_allow_html: true
+params:
+  lang: ES
+lang: "`r switch(params$lang, ES = 'es-ES', EN = 'en-US')`"
+subtitle: "Introducción a la Ciencia de Datos. Máster en Ciencia de Datos- UV"
+language:
+  label:
+    fig: 'Figura '
+    tab: 'Tabla '
+    eq: 'Ecuación '
+    thm: 'Teorema '
+    lem: 'Lema '
+    def: 'Definición '
+    cor: 'Corolario '
+    prp: 'Proposición '
+    exm: 'Ejemplo '
+    exr: 'Ejercicio '
+    proof: 'Demostración. '
+    remark: 'Nota: '
+    solution: 'Solución. '
+---
+
+# Introducción
+
+Vamos a importar los siguientes ficheros
+
+```{r}
+library(readr)
+library(readxl)
+library(haven)
+library(jsonlite)
+
+#Deposito.RData<-read_table("data/DFP1_11122015 124700.csv")
+
+#Pacientes.RData <- read_excel("data/subjectInfo.xlsx")
+
+#PsychBike <- read_sav("data/PsychBike.sav")
+
+
+```
+
+#  Ejemplo: fichero DFP1_11122015 124700.csv
+
+##  Importación del fichero
+
+**2.1.1.**Usar la herramienta de importación para previsualizar el resultado final. Compara las opciones base y readr.
+
+**2.1.2.**Leer el fichero con read.csv y el parámetro stringsAsFactors=F.
+
+```{r}
+library(readr)
+fname <- 'data/DFP1_11122015 124700.csv'
+Deposito.RData<-read.csv(fname,stringsAsFactors = FALSE,sep='\t')
+```
+
+**2.1.3.** Convertir fecha y hora
+
+```{r}
+library(hms)
+
+Deposito.RData$FECHA<-as.POSIXlt(Deposito.RData$FECHA,format="%d/%m/%Y")
+
+Deposito.RData$HORA<-as.hms(Deposito.RData$HORA)
+```
+
+**2.1.4.** Almacenar con save en una carpeta con nombre results dentro de la carpeta dada
+
+```{r}
+save(Deposito.RData,file='data/results/Deposito.RData')
+```
+
+##  Inspección de los datos
+
+Inspecciona los datos con str, head, tail y summary. Describid que informacion os proporciona cada uno de ellos.
+
+```{r}
+str(Deposito.RData)
+```
+
+Tenemos un data frame con 8887 muestras, cada uno de 5 variables.
+
+Las variables son 
+
+FECHA: formato POSIXlt
+
+HORA: num 
+
+Altura: num 
+
+Combinacion_Canya: num 
+
+Temperatura: num
+
+```{r}
+head(Deposito.RData)
+```
+Tenemos alturas iguales en las 6 primeras muestras con 137.81, la misma combinacion_canya en 2, y la misma temperatura en 14.6. Las horas difieren pero en segundos
+
+```{r}
+tail(Deposito.RData)
+```
+Tenemos también alturas iguales en las 6 últimas muestras con 949.13, la misma combinacion_canya en 2, y la misma temperatura en 14.7. Las horas difieren también en 1 segundo
+
+```{r}
+#para ver correctamente los necesito en numérico
+Deposito.RData$HORA<-as.numeric(Deposito.RData$HORA)
+summary(Deposito.RData)
+```
+Tenemos que 
+
+
+# Fichero Transactions from a Bakery (Kaggle)
+
+##  Importación del fichero
+
+Utlizamos el IMPORT DATASET DE RSTUDIO, y hemos especificado las fechas como datos tipo datetime.
+```{r}
+library(readr)
+bakery_sales_revised.RData <- read_csv("data/bakery_sales_revised.csv")
+bakery_sales_revised.RData$date_time<-as.POSIXct(bakery_sales_revised.RData$date_time,format="%m/%d/%Y %H:%M")
+```
+
+Ahora guardamos el dataframe en save
+
+```{r}
+save(bakery_sales_revised.RData,file='data/results/bakery_sales_revised.RData')
+```
+
+##  Inspección de los datos
+
+Inspecciona los datos con str,head,tail,summary
+```{r}
+str(bakery_sales_revised.RData)
+```
+```{r}
+head(bakery_sales_revised.RData)
+```
+
+```{r}
+tail(bakery_sales_revised.RData)
+```
+
+```{r}
+summary(bakery_sales_revised.RData)
+```
+TENEMOS TRANSACTION SIENDO UN NUMERO UNICO PARA CADA TRANSACCION
+TENEMOS ITEM SIENDO CHARACTER Y TIPOS DE COMIDA
+TENEMOS DATETIME EN MODO FECHA CON AÑO-MES-DIA HORA:MINUTOS.SEGUNDOS
+TENEMOS PERIOD_DAY: AFTERNOON, MORNING
+TENEMOS WEEKDAY_WEEKEND
+
+
+#  Fichero SPSS PsychBike.sav
+
+##  Importación del fichero
+```{r}
+library(haven)
+
+PsychBike.RData <- read_sav("data/PsychBike.sav")
+save(PsychBike.RData,file='data/results/PsychBike.RData')
+```
+
+##  Inspección de los datos
+
+```{r}
+dim(PsychBike.RData)
+```
+TENEMOS 6 COL Y 2355 OBSERVACIONES/FILAS
+
+```{r}
+head(PsychBike.RData)
+```
+
+```{r}
+str(PsychBike.RData)
+```
+```{r}
+summary(PsychBike.RData)
+```
+**Conclusión**
+
+TENEMOS TIPO DE VEHICULO QUE VARIA DEL 1 al 7
+TENEMOS HORAS EN FORMATO HMS
+TENEMOS COLORES EXPRESADOS EN NUMEROS DEL 1 AL 99, SIENDO LA MEDIA 3
+TENEMOS HELMET VARIANDO ENTRE 0 Y 1, BINARIO. SI SE LLEVA O NO GORRO
+TENEMOS DISTANCIA FROM KERB 
+TENEMOS PASSING_DISTANCIA
+
+
+
+#   Fichero data iris.zip
+
+##  Descomprimir el fichero
+```{r}
+unzip(zipfile='data/iris.zip',exdir='data')
+```
+
+
+#  Fichero data iris.data
+
+##  Importación del fichero
+
+Utiliza la funcion read.table para importar los datos.
+```{r}
+iris<-read.table('data/iris.data',sep=',')
+save(iris,file='data/results/iris.RData')
+```
+
+Cambiar el nombre de las columnas
+```{r}
+names(iris)<- c(
+    "Sepal.Length",
+    "Sepal.Width",
+    "Petal.Length",
+    "Petal.Width",
+    "Species"
+  )
+```
+
+
+##  Inspección de los datos
+
+```{r}
+str(iris)
+```
+Tenemos 
+"Sepal.Length" siendo num
+  "Sepal.Width" siendo num
+    "Petal.Length" siendo num
+    "Petal.Width" siendo num
+    "Species" siendo chr 
+
+```{r}
+head(iris)
+```
+
+Tenemos de specie iris-setosa
+```{r}
+tail(iris)
+```
+Tenemos ahora a la iris-virginica
+
+```{r}
+summary(iris)
+```
+TENEMOS LOS MINIMOS Y MAXIMOS
+
+# Fichero JSON FileCodificado.json
+
+## Importación del fichero
+```{r}
+library(jsonlite)
+filename <- 'data/FileCodificado.json'
+FileCodificado<-read_json(filename, simplifyVector=TRUE)
+save(FileCodificado,file='data/results/FileCodificado.RData')
+```
+
+## Inspección de los datos
+```{r}
+dim(FileCodificado)
+```
+
+```{r}
+str(FileCodificado)
+head(FileCodificado)
+tail(FileCodificado)
+summary(FileCodificado)
+```
+# Fichero JSON iris_json.json
+```{r}
+
+```
+
+## Importar el fichero iris_json.json
+```{r}
+iris_json<-read_json('data/iris_json.json', simplifyVector=TRUE)
+iris_json2<-fromJSON('data/iris_json.json')
+
+#Almacenar
+save(iris_json,file='data/results/iris_json.RData')
+```
+Ambas son iguales, pero es neceario el sumplifyVector para read_json
+
+## Inspección de los datos
+```{r}
+dim(iris_json)
+```
+
+```{r}
+str(iris_json)
+head(iris_json)
+tail(iris_json)
+summary(iris_json)
+```
+Tenemos 5 variables siendo estas Sepal length, sepal width, petal length, petal width, species, todas numericas menos species que indica que tipo de flor son 
